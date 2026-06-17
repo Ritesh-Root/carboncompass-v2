@@ -1,0 +1,28 @@
+# Files NOT uploaded as Cloud Build source context.
+# The frontend is built inside the Docker image (npm ci), and the backend
+# venv is local-only — neither should be uploaded.
+
+.git/
+.gitignore
+
+# Python local environments / caches
+**/.venv/
+.venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node / frontend build artifacts (image rebuilds these)
+**/node_modules/
+node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# Misc
+*.log
+.DS_Store

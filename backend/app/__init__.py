@@ -1,0 +1,1 @@
+"""CarbonCompass — backend application package."""
