@@ -234,6 +234,22 @@ class TestFirestoreSerialisation:
         assert all(isinstance(i, dict) for i in doc["insights"])
 
 
+class TestSecurityHeaders:
+    """Security headers must be present and the CSP must permit Google Fonts."""
+
+    def test_csp_allows_google_fonts(self, client: TestClient):
+        csp = client.get("/api/health").headers.get("Content-Security-Policy", "")
+        assert "https://fonts.googleapis.com" in csp  # stylesheet origin
+        assert "https://fonts.gstatic.com" in csp  # font-file origin
+        assert "default-src 'self'" in csp  # stays tight otherwise
+
+    def test_core_headers_present(self, client: TestClient):
+        headers = client.get("/api/health").headers
+        assert headers.get("X-Content-Type-Options") == "nosniff"
+        assert headers.get("X-Frame-Options") == "DENY"
+        assert "max-age=" in headers.get("Strict-Transport-Security", "")
+
+
 class TestDeviceIdValidator:
     """validate_device_id stays consistent with the shared DeviceId rules."""
 

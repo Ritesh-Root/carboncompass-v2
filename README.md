@@ -79,9 +79,11 @@ must depend on the specific shape of the user's footprint, not be a fixed checkl
   footprint is 70% flights is noise. The engine sorts categories by absolute kilograms
   and only generates advice for the categories that actually move the needle.
 - **AI with a safety net.** The personalised insights come from Google Gemini, but the
-  app never *depends* on it. If Gemini is disabled, rate-limited, times out, or returns
-  malformed JSON, a deterministic rule engine produces the same shape of response. The
-  UI shows which engine answered. This keeps the assistant useful and predictable.
+  app never *depends* on it. If Gemini is disabled, rate-limited, times out, returns
+  malformed JSON, or yields fewer than three actions, a deterministic rule engine
+  produces an **equally personalised** response — keyed off the same diet, consumption,
+  and flight profile, not a generic checklist. The UI shows which engine answered, so
+  the assistant stays useful and predictable either way.
 - **Pure calculation core.** The emission math is a side-effect-free module with no
   network or framework dependencies, which makes it trivial to test exhaustively and
   reason about.
@@ -187,7 +189,9 @@ Accessibility is treated as a requirement, not a polish step. The frontend targe
 - **Analytics are anonymised.** Aggregate logging never includes the device ID.
 - **Input validation** at both boundaries (Zod on the client, Pydantic on the server).
 - **Security headers** (CSP, HSTS, X-Frame-Options, Permissions-Policy) on every response.
-- **Rate limiting** per IP on every endpoint.
+  The CSP is locked to `'self'` apart from the Google Fonts CDN it explicitly allow-lists.
+- **Rate limiting** per IP on every endpoint, keyed on the real client address via
+  `X-Forwarded-For` so limits are enforced correctly behind the Cloud Run proxy.
 
 ---
 

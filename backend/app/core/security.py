@@ -51,10 +51,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response: Response = await call_next(request)
 
+        # Google Fonts is loaded via an @import in the bundled CSS: the stylesheet
+        # comes from fonts.googleapis.com and the font files from fonts.gstatic.com.
+        # These two origins are allow-listed explicitly so the policy stays tight
+        # while the SPA's typography still loads in production.
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self'; "
-            "style-src 'self'; "
+            "style-src 'self' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
             "img-src 'self' data:; "
             "connect-src 'self'"
         )
