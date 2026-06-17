@@ -20,6 +20,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
   the insights handling and avoiding a write failure on real Firestore.
 
 ### Changed
+- All routes refactored to idiomatic FastAPI `@router.get/@router.post`
+  decorators, removing the `get_type_hints` / `__annotations__` / manual
+  `add_api_route` metaprogramming workaround (it existed only to compensate
+  for `from __future__ import annotations`, which has been dropped from the
+  route modules).
 - `device_id` validation centralised into a single shared `DeviceId` type.
 - `InsightItem.category` constrained to a closed set (was a free string).
 - Background analytics tasks are now tracked to prevent garbage-collection

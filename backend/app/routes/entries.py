@@ -5,11 +5,8 @@ POST /api/entries       — Persist a carbon entry + insights to Firestore.
 GET  /api/entries/{id} — Retrieve history for a specific device.
 """
 
-from __future__ import annotations
-
 import logging
 from datetime import UTC, datetime
-from typing import get_type_hints
 
 from fastapi import APIRouter, HTTPException, Path, Request
 from pydantic import BaseModel
@@ -40,6 +37,15 @@ class SaveEntryResponse(BaseModel):
     saved_at: datetime
 
 
+@router.post(
+    "/entries",
+    response_model=SaveEntryResponse,
+    summary="Save a carbon footprint entry",
+    description=(
+        "Persist a carbon result and its associated insights "
+        "to Firestore for history tracking."
+    ),
+)
 @limiter.limit(ENTRIES_LIMIT)
 async def save_entry(request: Request, body: SaveEntryRequest) -> SaveEntryResponse:
     """Save carbon entry to Firestore (or in-memory fallback)."""
@@ -59,12 +65,15 @@ async def save_entry(request: Request, body: SaveEntryRequest) -> SaveEntryRespo
             insights=body.insights,
         )
 
-    return SaveEntryResponse(
-        id=doc_id,
-        saved_at=datetime.now(tz=UTC),
-    )
+    return SaveEntryResponse(id=doc_id, saved_at=datetime.now(tz=UTC))
 
 
+@router.get(
+    "/entries/{device_id}",
+    response_model=list[HistoryEntryResponse],
+    summary="Get carbon history for a device",
+    description="Retrieve the last 20 carbon footprint entries for a device, newest first.",
+)
 @limiter.limit(ENTRIES_LIMIT)
 async def get_entries(
     request: Request,
@@ -90,39 +99,3 @@ async def get_entries(
         entries = await firestore_service.get_history_memory(device_id=device_id, limit=limit)
 
     return [HistoryEntryResponse(**entry) for entry in entries]
-
-
-# Rebuild local Pydantic models
-SaveEntryRequest.model_rebuild()
-SaveEntryResponse.model_rebuild()
-
-# Resolve annotations on route handlers
-save_entry.__annotations__ = get_type_hints(save_entry)
-if hasattr(save_entry, "__wrapped__"):
-    save_entry.__wrapped__.__annotations__ = get_type_hints(save_entry.__wrapped__)
-
-get_entries.__annotations__ = get_type_hints(get_entries)
-if hasattr(get_entries, "__wrapped__"):
-    get_entries.__wrapped__.__annotations__ = get_type_hints(get_entries.__wrapped__)
-
-# Add routes manually to the router
-router.add_api_route(
-    "/entries",
-    endpoint=save_entry,
-    methods=["POST"],
-    response_model=SaveEntryResponse,
-    summary="Save a carbon footprint entry",
-    description=(
-        "Persist a carbon result and its associated insights "
-        "to Firestore for history tracking."
-    ),
-)
-
-router.add_api_route(
-    "/entries/{device_id}",
-    endpoint=get_entries,
-    methods=["GET"],
-    response_model=list[HistoryEntryResponse],
-    summary="Get carbon history for a device",
-    description="Retrieve the last 20 carbon footprint entries for a device, newest first.",
-)

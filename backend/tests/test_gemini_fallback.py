@@ -26,13 +26,6 @@ SAMPLE_RANKED = [
     {"category": "home", "kg": 667.0, "percentage": 10.0},
 ]
 
-SAMPLE_BREAKDOWN = {
-    "transport": 3000.0,
-    "consumption": 2000.0,
-    "diet": 1000.0,
-    "home": 667.0,
-}
-
 
 def _make_settings():
     s = MagicMock()

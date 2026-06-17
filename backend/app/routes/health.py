@@ -5,10 +5,7 @@ Returns the availability status of all integrated Google Cloud services.
 Designed for Cloud Run health checks and monitoring dashboards.
 """
 
-from __future__ import annotations
-
 from datetime import UTC, datetime
-from typing import get_type_hints
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -27,6 +24,12 @@ class HealthResponse(BaseModel):
     services: dict[str, bool]
 
 
+@router.get(
+    "/health",
+    response_model=HealthResponse,
+    summary="Application health check",
+    description="Returns service availability status. Used by Cloud Run readiness probes.",
+)
 async def health_check() -> HealthResponse:
     """
     Return health status of the application and all integrated Google Cloud services.
@@ -47,22 +50,3 @@ async def health_check() -> HealthResponse:
             "pubsub": settings.USE_PUBSUB,
         },
     )
-
-
-# Rebuild local Pydantic models
-HealthResponse.model_rebuild()
-
-# Resolve annotations on route handlers
-health_check.__annotations__ = get_type_hints(health_check)
-if hasattr(health_check, "__wrapped__"):
-    health_check.__wrapped__.__annotations__ = get_type_hints(health_check.__wrapped__)
-
-# Add routes manually to the router
-router.add_api_route(
-    "/health",
-    endpoint=health_check,
-    methods=["GET"],
-    response_model=HealthResponse,
-    summary="Application health check",
-    description="Returns service availability status. Used by Cloud Run readiness probes.",
-)

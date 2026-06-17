@@ -1,7 +1,7 @@
 """
 POST /api/insights — Generate personalised carbon reduction insights.
 
-Primary engine: Google Vertex AI Gemini 1.5 Flash.
+Primary engine: Google Vertex AI Gemini.
 Fallback engine: Deterministic rule-based system (always available).
 
 After generating insights, fires background tasks to:
@@ -9,11 +9,9 @@ After generating insights, fires background tasks to:
   - Publish event to Pub/Sub
 """
 
-from __future__ import annotations
-
 import asyncio
 import logging
-from typing import Any, Literal, cast, get_type_hints
+from typing import Any, Literal, cast
 
 from fastapi import APIRouter, Request
 
@@ -43,9 +41,7 @@ def _spawn_background(coro: Any) -> None:
     task.add_done_callback(_background_tasks.discard)
 
 
-def _analytics_payload(
-    result: CarbonResult, source: str, top_category: str
-) -> dict[str, Any]:
+def _analytics_payload(result: CarbonResult, source: str, top_category: str) -> dict[str, Any]:
     """Build the BigQuery event kwargs from a result.
 
     Pulled out as a pure function so it can be unit-tested: the diet_type must
@@ -60,6 +56,15 @@ def _analytics_payload(
     }
 
 
+@router.post(
+    "/insights",
+    response_model=InsightsResponse,
+    summary="Generate personalised carbon reduction insights",
+    description=(
+        "Generate 3 personalised, quantified carbon reduction actions. "
+        "Uses Gemini (primary) with automatic fallback to the rule-based engine."
+    ),
+)
 @limiter.limit(INSIGHTS_LIMIT)
 async def get_insights(request: Request, body: InsightsRequest) -> InsightsResponse:
     """
@@ -137,24 +142,3 @@ def _apply_rule_engine(result: CarbonResult) -> list[InsightItem]:
         flights_long_haul=result.flights_long_haul,
     )
     return [InsightItem(**d) for d in raw_dicts]
-
-
-# Resolve annotations on functions
-get_insights.__annotations__ = get_type_hints(get_insights)
-if hasattr(get_insights, "__wrapped__"):
-    get_insights.__wrapped__.__annotations__ = get_type_hints(get_insights.__wrapped__)
-
-_apply_rule_engine.__annotations__ = get_type_hints(_apply_rule_engine)
-
-# Add routes manually to the router
-router.add_api_route(
-    "/insights",
-    endpoint=get_insights,
-    methods=["POST"],
-    response_model=InsightsResponse,
-    summary="Generate personalised carbon reduction insights",
-    description=(
-        "Generate 3 personalised, quantified carbon reduction actions. "
-        "Uses Gemini 1.5 Flash (primary) with automatic fallback to rule-based engine."
-    ),
-)
