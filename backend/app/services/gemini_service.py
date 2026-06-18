@@ -108,12 +108,10 @@ async def generate_insights_gemini(
 
         # Run synchronous SDK call in a thread-pool to avoid blocking event loop
         response = await asyncio.wait_for(
-            asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: model.generate_content(
-                    prompt,
-                    generation_config=generation_config,
-                ),
+            asyncio.to_thread(
+                model.generate_content,
+                prompt,
+                generation_config=generation_config,
             ),
             timeout=15.0,  # 15-second hard timeout
         )

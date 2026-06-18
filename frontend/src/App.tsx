@@ -19,6 +19,7 @@ import { InsightsList } from './components/Insights/InsightsList';
 import { HistoryChart } from './components/History/HistoryChart';
 import { HistoryTable } from './components/History/HistoryTable';
 import { useCarbonStore } from './store/carbonStore';
+import { GLOBAL_AVERAGE_KG, PARIS_TARGET_KG } from './utils/constants';
 
 const NavLink = ({
   label,
@@ -138,13 +139,15 @@ function AppContent() {
               <div>
                 <dt className="text-xs text-gray-400">Global average</dt>
                 <dd className="text-lg font-semibold text-gray-900 tabular-nums">
-                  4,000 <span className="text-sm font-normal text-gray-400">kg/yr</span>
+                  {GLOBAL_AVERAGE_KG.toLocaleString('en-US')}{' '}
+                  <span className="text-sm font-normal text-gray-400">kg/yr</span>
                 </dd>
               </div>
               <div className="sm:border-l sm:border-gray-200 sm:pl-10">
                 <dt className="text-xs text-gray-400">Paris 1.5°C target</dt>
                 <dd className="text-lg font-semibold text-gray-900 tabular-nums">
-                  2,000 <span className="text-sm font-normal text-gray-400">kg/yr</span>
+                  {PARIS_TARGET_KG.toLocaleString('en-US')}{' '}
+                  <span className="text-sm font-normal text-gray-400">kg/yr</span>
                 </dd>
               </div>
               <div className="sm:border-l sm:border-gray-200 sm:pl-10">

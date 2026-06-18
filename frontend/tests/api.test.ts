@@ -170,3 +170,26 @@ describe('apiClient.saveEntry', () => {
     expect(resp.id).toBe('new-doc-id');
   });
 });
+
+describe('apiClient error handling edge cases', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('propagates a rejected fetch (offline / DNS failure)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
+    await expect(apiClient.calculateFootprint(mockInput)).rejects.toThrow('Failed to fetch');
+  });
+
+  it('falls back to "HTTP <status>" when the error body is not JSON', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => {
+        throw new SyntaxError('Unexpected token < in JSON');
+      },
+    } as unknown as Response);
+
+    await expect(apiClient.calculateFootprint(mockInput)).rejects.toThrow('HTTP 500');
+  });
+});

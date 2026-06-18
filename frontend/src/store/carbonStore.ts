@@ -96,7 +96,9 @@ export const useCarbonStore = create<CarbonState>((set, get) => ({
     try {
       await apiClient.saveEntry(result, insights.insights);
     } catch (err) {
-      // Non-critical — log but don't surface to user
+      // Saving to history is non-critical: log for diagnostics but don't block
+      // the user with an error banner (the result is already on screen).
+      console.error('Failed to save entry to history:', err);
     }
   },
 

@@ -19,12 +19,13 @@ import {
 } from 'recharts';
 import type { HistoryEntry } from '../../types';
 import { formatDate, formatKg } from '../../utils/formatters';
+import { ChartTooltip } from '../shared/ChartTooltip';
 
 interface HistoryChartProps {
   history: HistoryEntry[];
 }
 
-const CustomTooltip = ({
+const TrendTooltip = ({
   active,
   payload,
   label,
@@ -34,12 +35,7 @@ const CustomTooltip = ({
   label?: string;
 }) => {
   if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-lg text-sm">
-      <p className="text-gray-500 text-xs mb-1">{label}</p>
-      <p className="font-bold text-gray-900">{formatKg(payload[0].value)} CO₂e</p>
-    </div>
-  );
+  return <ChartTooltip title={label ?? ''} value={payload[0].value} />;
 };
 
 export const HistoryChart = ({ history }: HistoryChartProps) => {
@@ -55,6 +51,7 @@ export const HistoryChart = ({ history }: HistoryChartProps) => {
 
   // Display oldest → newest for the trend line
   const chartData = [...history].reverse().map(entry => ({
+    id: entry.id,
     date: formatDate(entry.timestamp),
     kg: entry.total_kg,
   }));
@@ -89,7 +86,7 @@ export const HistoryChart = ({ history }: HistoryChartProps) => {
               tickFormatter={(v: number) => formatKg(v)}
               width={52}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<TrendTooltip />} />
             <Line
               type="monotone"
               dataKey="kg"
@@ -125,7 +122,7 @@ export const HistoryChart = ({ history }: HistoryChartProps) => {
                     ? `Down ${formatKg(Math.abs(diff))}`
                     : 'No change';
             return (
-              <tr key={i}>
+              <tr key={entry.id}>
                 <th scope="row">{entry.date}</th>
                 <td>{Math.round(entry.kg)}</td>
                 <td>{trendLabel}</td>

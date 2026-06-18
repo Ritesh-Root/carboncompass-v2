@@ -89,6 +89,13 @@ class TestGeminiFallbackTriggers:
         mock_gm_class = MagicMock()
         mock_gen_config = MagicMock()
 
+        def _timeout(awaitable, *args, **kwargs):
+            # Close the to_thread coroutine we're handed so it isn't reported as
+            # "never awaited", then simulate the timeout.
+            if hasattr(awaitable, "close"):
+                awaitable.close()
+            raise TimeoutError()
+
         with (
             patch("app.services.gemini_service.get_settings", return_value=_make_settings()),
             patch.dict(
@@ -101,7 +108,7 @@ class TestGeminiFallbackTriggers:
                     ),
                 },
             ),
-            patch("asyncio.wait_for", side_effect=TimeoutError()),
+            patch("asyncio.wait_for", side_effect=_timeout),
         ):
             with pytest.raises(GeminiUnavailableError):
                 await generate_insights_gemini(SAMPLE_RANKED, 6667.0)

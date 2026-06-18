@@ -11,9 +11,9 @@
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { RankedCategory } from '../../types';
 import { formatCategory, formatKg } from '../../utils/formatters';
+import { ChartTooltip } from '../shared/ChartTooltip';
 
 interface CategoryChartProps {
-  breakdown: Record<string, number>;
   ranked_categories: RankedCategory[];
 }
 
@@ -25,7 +25,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   general: '#86efac',
 };
 
-const CustomTooltip = ({
+const CategoryTooltip = ({
   active,
   payload,
 }: {
@@ -34,15 +34,10 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   const { value, payload: data } = payload[0];
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-lg text-sm">
-      <p className="font-semibold text-gray-900">{formatCategory(data.category)}</p>
-      <p className="text-primary-700">{formatKg(value)} CO₂e</p>
-    </div>
-  );
+  return <ChartTooltip title={formatCategory(data.category)} value={value} />;
 };
 
-export const CategoryChart = ({ breakdown: _breakdown, ranked_categories }: CategoryChartProps) => {
+export const CategoryChart = ({ ranked_categories }: CategoryChartProps) => {
   const chartData = ranked_categories.map(item => ({
     category: item.category,
     label: formatCategory(item.category),
@@ -77,7 +72,7 @@ export const CategoryChart = ({ breakdown: _breakdown, ranked_categories }: Cate
               tickFormatter={(v: number) => formatKg(v)}
               width={52}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f0fdf4' }} />
+            <Tooltip content={<CategoryTooltip />} cursor={{ fill: '#f0fdf4' }} />
             <Bar dataKey="kg" radius={[6, 6, 0, 0]} maxBarSize={64}>
               {chartData.map(entry => (
                 <Cell key={entry.category} fill={CATEGORY_COLORS[entry.category] ?? '#16a34a'} />

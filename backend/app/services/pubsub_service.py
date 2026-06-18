@@ -14,6 +14,7 @@ import asyncio
 import json
 import logging
 from datetime import UTC, datetime
+from typing import Any
 
 import google.cloud.pubsub_v1 as pubsub_v1
 
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 def _publish_message(
     project_id: str,
     topic_id: str,
-    payload: dict,
+    payload: dict[str, Any],
 ) -> None:
     """Synchronous Pub/Sub publish (runs in thread-pool executor)."""
     publisher = pubsub_v1.PublisherClient()
@@ -64,8 +65,7 @@ async def publish_insight_request(
     }
 
     try:
-        await asyncio.get_event_loop().run_in_executor(
-            None,
+        await asyncio.to_thread(
             _publish_message,
             settings.PROJECT_ID,
             settings.PUBSUB_TOPIC,

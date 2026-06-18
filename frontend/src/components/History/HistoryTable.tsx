@@ -31,8 +31,11 @@ const InsightExpandedRow = ({ entry, id }: { entry: HistoryEntry; id: string }) 
       <p className="text-sm text-gray-500">No insights saved for this entry.</p>
     ) : (
       <ol className="space-y-2 list-none">
-        {entry.insights.map((insight, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+        {entry.insights.map(insight => (
+          <li
+            key={`${insight.category}-${insight.priority}`}
+            className="flex items-start gap-2 text-sm text-gray-700"
+          >
             <span aria-hidden="true">{getCategoryIcon(insight.category)}</span>
             <span>{insight.action}</span>
             <span className="ml-auto text-xs text-primary-700 font-semibold whitespace-nowrap">

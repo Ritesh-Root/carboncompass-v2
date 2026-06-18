@@ -22,14 +22,10 @@ export default defineConfig({
         'dist/**',
         '**/*.config.*',
         '**/index.ts',
-        // Entry points and integration-level files covered by E2E tests
+        // App shell / bootstrap — wiring of already-unit-tested pieces.
         'src/main.tsx',
         'src/App.tsx',
-        // Store is mocked in all unit tests; integration-tested via E2E
-        'src/store/**',
-        // Hooks are thin wrappers around store; tested implicitly
-        'src/hooks/**',
-        // Infrastructure components (ErrorBoundary, SkipLink) tested in E2E
+        // Thin presentational/infra shells with no branching logic.
         'src/components/shared/ErrorBoundary.tsx',
         'src/components/shared/SkipLink.tsx',
       ],

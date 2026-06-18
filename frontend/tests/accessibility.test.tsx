@@ -123,10 +123,7 @@ describe('Accessibility — CarbonForm', () => {
 describe('Accessibility — CategoryChart', () => {
   it('has no axe violations', async () => {
     const { container } = render(
-      <CategoryChart
-        breakdown={mockResult.breakdown}
-        ranked_categories={mockResult.ranked_categories}
-      />
+      <CategoryChart ranked_categories={mockResult.ranked_categories} />
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

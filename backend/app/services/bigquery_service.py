@@ -87,8 +87,7 @@ async def log_event_async(
     settings = get_settings()
 
     try:
-        await asyncio.get_event_loop().run_in_executor(
-            None,
+        await asyncio.to_thread(
             _write_to_bigquery,
             total_kg,
             diet_type,

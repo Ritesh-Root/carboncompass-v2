@@ -86,7 +86,7 @@ export const InsightsList = ({ insightsResponse }: InsightsListProps) => {
         className="space-y-4 list-none"
       >
         {insights.map((insight, i) => (
-          <li key={i}>
+          <li key={`${insight.category}-${insight.priority}`}>
             <InsightCard insight={insight} index={i} />
           </li>
         ))}

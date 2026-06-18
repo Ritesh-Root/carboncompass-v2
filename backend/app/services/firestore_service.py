@@ -90,7 +90,7 @@ async def save_entry(
         doc_ref.set(doc_data)
         return doc_ref.id
 
-    doc_id = await asyncio.get_event_loop().run_in_executor(None, _write)
+    doc_id = await asyncio.to_thread(_write)
     logger.info("Saved Firestore entry %s for device %s", doc_id, device_id[:8])
     return doc_id
 
@@ -125,7 +125,7 @@ async def get_history(device_id: str, limit: int = 20) -> list[dict[str, Any]]:
                 entries.append(data)
         return entries
 
-    return await asyncio.get_event_loop().run_in_executor(None, _query)
+    return await asyncio.to_thread(_query)
 
 
 # ---------------------------------------------------------------------------

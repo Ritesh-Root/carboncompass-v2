@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## [1.2.0] - 2026-06-18
+
+### Changed
+- **Code quality:** `get_rule_based_insights` decomposed into per-category helper
+  functions; all rule thresholds, reduction factors, and flat savings promoted to
+  named module constants (flight savings now reuse the published `factors.py`
+  per-flight values instead of duplicated literals).
+- Backend services switched from the legacy `get_event_loop().run_in_executor`
+  pattern to idiomatic `asyncio.to_thread` (BigQuery, Pub/Sub, Firestore, Gemini).
+- Tightened types in `routes/insights.py`: `_spawn_background` takes a
+  `Coroutine`, analytics kwargs use a `TypedDict`, and the ranked-category list is
+  computed once and threaded through instead of recomputed.
+- Frontend benchmark constants (global average / Paris target) centralised in
+  `utils/constants.ts`, removing four hard-coded copies across `App` and
+  `ResultsDisplay`.
+- Shared `ChartTooltip` component extracted, de-duplicating the bar- and
+  line-chart tooltip markup.
+
+### Fixed
+- `carbonStore.saveEntry` no longer swallows errors silently — failures are now
+  logged (history saving stays non-blocking by design).
+- React list keys now use stable identifiers (`entry.id`,
+  `category`+`priority`) instead of array indices in the insights, history chart,
+  and history table lists.
+- Removed dead code: three unused hook files (`useCarbon`/`useHistory`/
+  `useInsights`) and the unused `breakdown` prop on `CategoryChart`.
+
+### Added
+- Direct unit tests for the Zustand store (`tests/carbonStore.test.ts`) covering
+  success, error, non-Error-fallback, and early-return paths; the store is no
+  longer excluded from coverage.
+- Backend robustness tests (`tests/test_robustness.py`): rate-limit 429
+  enforcement, route 500 error path, exact comparison-math correctness, and
+  calculator fallback branches.
+- Frontend edge-case tests: API network-rejection and non-JSON error bodies,
+  `formatKg` rounding boundaries, and the `getDeviceId` format contract.
+- Backend coverage gate raised to 90% (`fail_under`), matching the documented
+  target; suites now run warning-clean.
+
 ## [1.1.0] - 2026-06-17
 
 ### Fixed

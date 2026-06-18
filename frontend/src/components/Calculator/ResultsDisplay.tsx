@@ -10,6 +10,7 @@
 
 import { useCarbonStore } from '../../store/carbonStore';
 import type { CarbonResult } from '../../types';
+import { GLOBAL_AVERAGE_KG, PARIS_TARGET_KG } from '../../utils/constants';
 import { formatKg, getFootprintLabel } from '../../utils/formatters';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { CategoryChart } from './CategoryChart';
@@ -113,14 +114,14 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
           label="vs Global Average"
           pct={result.vs_global_average_pct}
           benchmark="global average"
-          benchmarkKg={4000}
+          benchmarkKg={GLOBAL_AVERAGE_KG}
         />
         <ComparisonBar
           id="paris-target-bar"
           label="vs Paris 1.5°C Target"
           pct={result.vs_paris_target_pct}
           benchmark="Paris climate target"
-          benchmarkKg={2000}
+          benchmarkKg={PARIS_TARGET_KG}
         />
         <p className="text-xs text-gray-400 pt-2 border-t border-gray-100">
           Sources: Our World in Data 2023 (global avg) · IPCC SR1.5 (Paris target)
@@ -130,7 +131,7 @@ export const ResultsDisplay = ({ result }: ResultsDisplayProps) => {
       {/* Category Chart */}
       <div className="card p-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-4">Breakdown by Category</h3>
-        <CategoryChart breakdown={result.breakdown} ranked_categories={result.ranked_categories} />
+        <CategoryChart ranked_categories={result.ranked_categories} />
       </div>
 
       {/* Get Insights CTA */}

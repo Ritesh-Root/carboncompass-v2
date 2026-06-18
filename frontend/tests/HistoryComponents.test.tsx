@@ -293,7 +293,7 @@ describe('History and Chart Components', () => {
       { category: 'diet', kg: 600, percentage: 15.0 },
       { category: 'consumption', kg: 400, percentage: 10.0 },
     ];
-    render(<CategoryChart breakdown={{}} ranked_categories={categories} />);
+    render(<CategoryChart ranked_categories={categories} />);
     expect(
       screen.getByText('Carbon footprint breakdown by category (annual kg CO₂e)')
     ).toBeInTheDocument();
